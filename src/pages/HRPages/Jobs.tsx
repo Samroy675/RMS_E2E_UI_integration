@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { applicants } from "../../data/model";
-import { useContext } from "react";
 import { JobContext } from "../../contexts/JobContext";
 import { Users, Clock, Briefcase } from "lucide-react";
 
@@ -10,6 +9,7 @@ const Jobs: React.FC = () => {
   const totalApplicants = applicants.length;
 
   const approvedJobs = jobs.filter((job) => job.status === "Approved");
+
   return (
     <div className="container-fluid py-4">
       <div className="text-center mb-5">
@@ -45,39 +45,34 @@ const Jobs: React.FC = () => {
             </div>
           ) : (
             approvedJobs.map((job) => (
-              <div key={job.id} className="card mb-4 shadow-sm border-0">
+              <div key={job.requirement_id} className="card mb-4 shadow-sm border-0">
                 <div className="card-body p-4">
                   <div className="d-flex justify-content-between align-items-start mb-3">
-                    <h3 className="card-title h4 mb-0">{job.title}</h3>
-                    <span className="badge bg-light text-primary fs-6">
-                      Active
-                    </span>
+                    <h3 className="card-title h4 mb-0">{job.job_title}</h3>
+                    <span className="badge bg-light text-primary fs-6">Active</span>
                   </div>
 
                   <div className="row text-muted mb-3">
                     <div className="col-auto">
                       <Clock size={16} className="me-1" />
-                      {job.experience}
+                      {job.years_experience} years
                     </div>
                     <div className="col-auto">
                       <Users size={16} className="me-1" />
-                      {job.openings} openings
+                      {job.number_of_openings} openings
                     </div>
                   </div>
 
-                  <p className="card-text text-muted mb-4">{job.description}</p>
+                  <p className="card-text text-muted mb-4">{job.job_description}</p>
 
                   <div className="mb-4">
                     <h6 className="text-muted mb-2">
                       <span className="text-warning">🔧</span> Required Skills
                     </h6>
                     <div className="d-flex flex-wrap gap-2">
-                      {job.requiredSkills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="badge bg-light text-dark border"
-                        >
-                          {skill}
+                      {job.required_skills.split(",").map((skill, index) => (
+                        <span key={index} className="badge bg-light text-dark border">
+                          {skill.trim()}
                         </span>
                       ))}
                     </div>
@@ -85,11 +80,10 @@ const Jobs: React.FC = () => {
 
                   <div className="d-flex justify-content-between align-items-center">
                     <div className="text-muted">
-                      <span className="text-danger">🎯</span>{" "}
-                      {job.interviewRounds} interview rounds
+                      <span className="text-danger">🎯</span> {job.number_of_rounds} interview rounds
                     </div>
                     <Link
-                      to={`hr/applicants/${job.id}`}
+                      to={`/hr/applicants/${job.requirement_id}`}
                       className="btn btn-dark btn-lg px-4"
                     >
                       View Applicants →

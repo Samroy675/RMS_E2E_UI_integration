@@ -24,23 +24,23 @@ const HomePage: React.FC = () => {
     if (isLogin) {
       const success = await login(formData.email, formData.password);
       if (success) {
-        // Navigation will be handled by the auth context and routing
+        navigate("/dashboard");
       } else {
         setError('Invalid credentials');
       }
     } else {
-        const success = await signup({
-            email: formData.email,
-            password: formData.password,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            phone: formData.phone,
-            role: formData.role,
-            is_active: true
-          });
-          
+      const success = await signup({
+        email: formData.email,
+        password: formData.password,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        phone: formData.phone,
+        role: formData.role,
+        is_active: true
+      });
+
       if (success) {
-        // Navigation will be handled by the auth context and routing
+        navigate("/dashboard");
       } else {
         setError('User already exists or signup failed');
       }
@@ -109,7 +109,7 @@ const HomePage: React.FC = () => {
                         {error}
                       </div>
                     )}
-                    
+
                     {!isLogin && (
                       <div className="row mb-3">
                         <div className="col-md-6">
@@ -237,7 +237,7 @@ const HomePage: React.FC = () => {
               <p className="lead text-muted">Empower your organization with tools designed for modern workforce management</p>
             </div>
           </div>
-          
+
           <div className="row g-4">
             <div className="col-lg-4">
               <div className="card h-100 border-0 shadow-sm">
@@ -250,7 +250,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="col-lg-4">
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body text-center p-4">
@@ -262,7 +262,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="col-lg-4">
               <div className="card h-100 border-0 shadow-sm">
                 <div className="card-body text-center p-4">
@@ -278,34 +278,36 @@ const HomePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Demo Credentials Section */}
-      <div className="py-4 bg-light">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-10">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5 className="card-title text-center mb-4" style={{ color: '#1e3a8a' }}>Demo Credentials</h5>
-                  <div className="row">
-                    <div className="col-md-4 text-center">
-                      <h6 className="text-primary">Manager</h6>
-                      <p className="mb-1"><strong>Email:</strong> john.manager@company.com</p>
-                      <p className="mb-0"><strong>Password:</strong> hashed_password_1</p>
-                    </div>
-                    <div className="col-md-4 text-center">
-                      <h6 className="text-success">HR</h6>
-                      <p className="mb-1"><strong>Email:</strong> sarah.hr@company.com</p>
-                      <p className="mb-0"><strong>Password:</strong> hashed_password_2</p>
-                    </div>
-                    <div className="col-md-4 text-center">
-                      <h6 className="text-warning">Interviewer</h6>
-                      <p className="mb-1"><strong>Email:</strong> mike.interviewer@company.com</p>
-                      <p className="mb-0"><strong>Password:</strong> hashed_password_3</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+      {/* Footer */}
+      <div className="bg-primary text-white mt-5">
+        <div className="container py-4">
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <h5 className="fw-bold">Fidelity National Financial</h5>
+              <p className="mb-0 small">
+                Delivering comprehensive HR management solutions to streamline
+                hiring, empower teams, and optimize workforce performance.
+              </p>
             </div>
+            <div className="col-md-3 mb-3">
+              <h6 className="fw-semibold">Solutions</h6>
+              <ul className="list-unstyled small">
+                <li>Job Management</li>
+                <li>Interview Coordination</li>
+                <li>Performance Analytics</li>
+              </ul>
+            </div>
+            <div className="col-md-3 mb-3">
+              <h6 className="fw-semibold">Contact</h6>
+              <ul className="list-unstyled small">
+                <li>Email: hr-support@fidelity.com</li>
+                <li>Phone: +1 (800) 555-1234</li>
+              </ul>
+            </div>
+          </div>
+          <hr className="border-light opacity-25" />
+          <div className="text-center">
+            <small>© 2025 Fidelity National Financial. All Rights Reserved.</small>
           </div>
         </div>
       </div>

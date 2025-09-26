@@ -19,11 +19,11 @@ const Navbar: React.FC = () => {
     switch (user.role) {
       case 'Manager':
         return [
-          { name: 'Dashboard', path: '/manager', active: location.pathname === '/manager' }
+          { name: 'Dashboard', path: '/manager', active: location.pathname === '/manager' },
         ];
       case 'HR':
         return [
-          { name: 'Jobs', path: '/hr', active: location.pathname === '/hr' },
+          { name: 'Jobs', path: '/hr/jobs', active: location.pathname.startsWith('/hr/jobs') || location.pathname.includes('/applicants') },
           { name: 'Dashboard', path: '/hr/dashboard', active: location.pathname === '/hr/dashboard' },
           { name: 'Job Approvals', path: '/hr/approvals', active: location.pathname === '/hr/approvals' }
         ];
@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
                   style={{ border: 'none' }}
                 >
                   <div 
-                    className="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2"
+                    className="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2 mb-3"
                     style={{ width: '32px', height: '32px' }}
                   >
                     <span className="text-white fw-bold">
@@ -81,7 +81,7 @@ const Navbar: React.FC = () => {
                   </div>
                   <div className="text-start">
                     <div className="fw-bold">{user.first_name} {user.last_name}</div>
-                    <small className="text-muted">{user.role}</small>
+                    <small className="text-white">{user.role}</small>
                   </div>
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end">

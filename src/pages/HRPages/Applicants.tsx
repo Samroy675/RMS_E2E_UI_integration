@@ -31,7 +31,7 @@ const Applicants: React.FC = () => {
   return (
     <div className="container-fluid py-4">
       <div className="mb-4">
-        <Link to="/jobs" className="btn btn-link text-decoration-none p-0 mb-3">
+        <Link to="/hr/jobs" className="btn btn-link text-decoration-none p-0 mb-3">
           <ArrowLeft size={16} className="me-1" />
           Back to Jobs
         </Link>
@@ -128,8 +128,8 @@ const Applicants: React.FC = () => {
                   <div className="text-end mb-2">
                     <small className="text-muted">Round {applicant.currentRound}</small>
                   </div>
-                  <Link 
-                    to={`hr/applicant/${applicant.id}`}
+                  <Link
+                    to={`/hr/applicant/${applicant.id}`}
                     className="btn btn-dark"
                   >
                     Review Application

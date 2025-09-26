@@ -10,16 +10,15 @@ export default function Approvals() {
       <div className="row justify-content-center">
         <div className="col-lg-10">
           {jobs.map((job) => (
-            <div key={job.id} className="card mb-4 shadow-sm border-0">
+            <div key={job.requirement_id} className="card mb-4 shadow-sm border-0">
               <div className="card-body p-4">
                 <div className="d-flex justify-content-between align-items-start mb-3">
-                  <h3 className="card-title h4 mb-0">{job.title}</h3>
+                  <h3 className="card-title h4 mb-0">{job.job_title}</h3>
                   <span
-                    className={`badge fs-6 ${
-                      job.status === "Approved"
+                    className={`badge fs-6 ${job.status === "Approved"
                         ? "bg-success text-white"
                         : "bg-light text-primary"
-                    }`}
+                      }`}
                   >
                     {job.status}
                   </span>
@@ -28,27 +27,24 @@ export default function Approvals() {
                 <div className="row text-muted mb-3">
                   <div className="col-auto flex items-center gap-1">
                     <Clock size={16} />
-                    {job.experience}
+                    {job.years_experience} years
                   </div>
                   <div className="col-auto flex items-center gap-1">
                     <Users size={16} />
-                    {job.openings} openings
+                    {job.number_of_openings} openings
                   </div>
                 </div>
 
-                <p className="card-text text-muted mb-4">{job.description}</p>
+                <p className="card-text text-muted mb-4">{job.job_description}</p>
 
                 <div className="mb-4">
                   <h6 className="text-muted mb-2">
                     <span className="text-warning">🔧</span> Required Skills
                   </h6>
                   <div className="d-flex flex-wrap gap-2">
-                    {job.requiredSkills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="badge bg-light text-dark border"
-                      >
-                        {skill}
+                    {job.required_skills.split(",").map((skill, index) => (
+                      <span key={index} className="badge bg-light text-dark border">
+                        {skill.trim()}
                       </span>
                     ))}
                   </div>
@@ -57,12 +53,12 @@ export default function Approvals() {
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="text-muted flex items-center gap-1">
                     <span className="text-danger">🎯</span>{" "}
-                    {job.interviewRounds} interview rounds
+                    {job.number_of_rounds} interview rounds
                   </div>
 
                   <button
                     className="btn btn-dark btn-lg px-4"
-                    onClick={() => approveJob(job.id)}
+                    onClick={() => approveJob(job.requirement_id)}
                     disabled={job.status === "Approved"}
                   >
                     {job.status === "Approved" ? "Approved" : "Approve →"}
