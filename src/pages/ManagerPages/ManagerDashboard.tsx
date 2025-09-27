@@ -11,12 +11,18 @@ const ManagerDashboard: React.FC = () => {
   const { jobs, deleteJob } = useJobs(); // ✅ Use context
   const navigate = useNavigate();
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this job requirement?")) {
-      deleteJob(id); // ✅ Use context method
+      try {
+        await deleteJob(id); // call context function which hits API
+        alert("Job deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete job", err);
+        alert("Failed to delete job. Check console for details.");
+      }
     }
   };
-
+  
   return (
     <>
       <Navbar />

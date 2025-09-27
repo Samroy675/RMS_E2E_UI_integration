@@ -1,16 +1,16 @@
 export interface User {
     user_id: number;
     email: string;
-    password: string;
-    first_name: string;
-    last_name: string;
-    phone: string;
+    password?: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
     role: 'Manager' | 'HR' | 'Interviewer' | 'Candidate';
-    session_token: string;
-    last_login: string;
-    created_at: string;
-    updated_at: string;
-    is_active: boolean;
+    session_token?: string;
+    last_login?: string;
+    created_at?: string;
+    updated_at?: string;
+    is_active?: boolean;
   }
   
   export interface JobRequirement {

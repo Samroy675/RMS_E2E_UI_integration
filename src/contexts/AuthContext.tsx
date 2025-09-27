@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../data/index'
-import { getUsers } from '../services/dataService';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import * as jwt_decode from "jwt-decode";
+import type { User } from "../data";
+import { loginUser, createUser } from "../services/api/users";
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (userData: Omit<User, 'user_id' | 'session_token' | 'created_at' | 'updated_at' | 'last_login'>) => Promise<boolean>;
+  signup: (userData: Partial<User>) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -14,67 +15,74 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setIsAuthenticated(true);
+    const token = localStorage.getItem("rms_token");
+    if (token) {
+      try {
+        const decoded = (jwt_decode as any)(token);
+        setUser({
+          user_id: decoded.sub,
+          role: decoded.role,
+          email: decoded.email,
+          first_name: decoded.firstName,
+          last_name: decoded.lastName,
+          password: "",
+          phone: "",
+          session_token: token,
+          last_login: "",
+          created_at: "",
+          updated_at: "",
+          is_active: true,
+        });
+        setIsAuthenticated(true);
+      } catch (err) {
+        console.error("Invalid token, logging out", err);
+        localStorage.removeItem("rms_token");
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     }
   }, []);
+  
+  
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    const users = await getUsers();
-    const foundUser = users.find(u => u.email === email && u.password === password);
-    
-    if (foundUser && foundUser.is_active) {
-      setUser(foundUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('currentUser', JSON.stringify(foundUser));
-      return true;
+  const login = async (email: string, password: string) => {
+    try {
+      const res = await loginUser(email, password);
+      if (res.token) {
+        localStorage.setItem("rms_token", res.token);
+      }
+      if (res.user) {
+        setUser(res.user);
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Login failed", err);
+      return false;
     }
-    return false;
   };
 
-  const signup = async (userData: Omit<User, 'user_id' | 'session_token' | 'created_at' | 'updated_at' | 'last_login'>): Promise<boolean> => {
+  const signup = async (userData: Partial<User>) => {
     try {
-      const users = await getUsers();
-      const existingUser = users.find(u => u.email === userData.email);
-      
-      if (existingUser) {
-        return false; // User already exists
+      const created = await createUser(userData);
+      if ((created as any).session_token) {
+        localStorage.setItem("rms_token", (created as any).session_token);
       }
-
-      const newUser: User = {
-        ...userData,
-        user_id: Math.max(...users.map(u => u.user_id)) + 1,
-        session_token: `token_${Date.now()}`,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_login: new Date().toISOString(),
-        is_active: true
-      };
-
-      // In a real app, this would save to the database
-      setUser(newUser);
+      setUser(created);
       setIsAuthenticated(true);
-      localStorage.setItem('currentUser', JSON.stringify(newUser));
       return true;
-    } catch (error) {
-      console.error('Signup failed:', error);
+    } catch (err) {
+      console.error("Signup failed", err);
       return false;
     }
   };
@@ -82,16 +90,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem("rms_token");
   };
 
-  const value = {
-    user,
-    login,
-    signup,
-    logout,
-    isAuthenticated,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
