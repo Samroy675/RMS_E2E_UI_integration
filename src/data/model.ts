@@ -143,75 +143,35 @@ export const applications: Application[] = [
 
 export const jobs: Job[] = [
   {
-    id: 1,
-    title: '.NET Developer',
-    experience: 3,
-    openings: 5,
-    status: 'Active',
-    description: 'We are looking for a skilled .NET developer to join our team. The candidate should have experience with C#, ASP.NET Core, and Entity Framework.',
-    requiredSkills: ['C#', 'ASP.NET Core', 'Entity Framework', 'SQL Server', 'REST API', 'MVC', 'Git'],
-    interviewRounds: 3
+    JobId: 1,
+    JobTitle: '.NET Developer',
+    YearsExperience: 3,
+    NumberOfOpenings: 5,
+    Status: 'Active',
+    JobDescription: 'We are looking for a skilled .NET developer to join our team. The candidate should have experience with C#, ASP.NET Core, and Entity Framework.',
+    RequiredSkills: ['C#', 'ASP.NET Core', 'Entity Framework', 'SQL Server', 'REST API', 'MVC', 'Git'],
+    NumberOfRounds: 3
   },
   {
-    id: 2,
-    title: 'Java Developer',
-    experience: 4,
-    openings: 3,
-    status: 'Active',
-    description: 'Looking for a Java developer with experience in Spring Boot and microservices architecture.',
-    requiredSkills: ['Java', 'Spring Boot', 'Microservices', 'MySQL', 'REST API', 'Maven', 'Docker'],
-    interviewRounds: 3
+    JobId: 2,
+    JobTitle: 'Java Developer',
+    YearsExperience: 4,
+    NumberOfOpenings: 3,
+    Status: 'Active',
+    JobDescription: 'Looking for a Java developer with experience in Spring Boot and microservices architecture.',
+    RequiredSkills: ['Java', 'Spring Boot', 'Microservices', 'MySQL', 'REST API', 'Maven', 'Docker'],
+    NumberOfRounds: 3
   },
   {
-    id: 3,
-    title: 'Frontend Developer',
-    experience: 2,
-    openings: 4,
-    status: 'Active',
-    description: 'Looking for a Frontend Developer skilled in React, TypeScript, and Tailwind CSS to build responsive web applications.',
-    requiredSkills: ['React', 'TypeScript', 'Tailwind CSS', 'JavaScript', 'HTML', 'CSS', 'Redux'],
-    interviewRounds: 2
-  },
-  {
-    id: 4,
-    title: 'Backend Developer (Node.js)',
-    experience: 3,
-    openings: 2,
-    status: 'Active',
-    description: 'Seeking a Backend Developer experienced in Node.js, Express, and MongoDB for building RESTful APIs.',
-    requiredSkills: ['Node.js', 'Express', 'MongoDB', 'REST API', 'JWT', 'Git', 'Docker'],
-    interviewRounds: 3
-  },
-  {
-    id: 5,
-    title: 'Full Stack Developer',
-    experience: 5,
-    openings: 1,
-    status: 'Active',
-    description: 'We need a Full Stack Developer with expertise in both frontend and backend technologies to deliver end-to-end solutions.',
-    requiredSkills: ['React', 'Node.js', 'Express', 'MongoDB', 'TypeScript', 'REST API', 'AWS'],
-    interviewRounds: 3
-  },
-  {
-    id: 6,
-    title: 'Data Scientist',
-    experience: 6,
-    openings: 2,
-    status: 'Active',
-    description: 'Looking for a Data Scientist proficient in Python, machine learning, and data visualization to analyze large datasets.',
-    requiredSkills: ['Python', 'Pandas', 'NumPy', 'scikit-learn', 'TensorFlow', 'Matplotlib', 'SQL'],
-    interviewRounds: 3
-  },
-  {
-    id: 7,
-    title: 'DevOps Engineer',
-    experience: 4,
-    openings: 2,
-    status: 'Active',
-    description: 'Hiring a DevOps Engineer with experience in CI/CD pipelines, AWS, and containerization technologies.',
-    requiredSkills: ['AWS', 'Docker', 'Kubernetes', 'Jenkins', 'Terraform', 'Git', 'Linux'],
-    interviewRounds: 3
-  },
+    JobId: 3,
+    JobTitle: 'Frontend Developer',
+    YearsExperience: 2,
+    NumberOfOpenings: 4,
+    Status: 'Active',
+    JobDescription: 'Looking for a Frontend Developer skilled in React, TypeScript, and Tailwind CSS to build responsive web applications.',
+    RequiredSkills: ['React', 'TypeScript', 'Tailwind CSS', 'JavaScript', 'HTML', 'CSS', 'Redux'],
+    NumberOfRounds: 2
+  }
 ];
 
 export const applicants: Applicant[] = [

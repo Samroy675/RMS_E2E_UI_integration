@@ -1,20 +1,22 @@
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useJobs } from '../../contexts/JobContext';
-import Navbar from '../../components/Navbar';
-import JobStats from '../../components/ManagerComponents/JobStats';
-import JobTable from '../../components/ManagerComponents/JobTable';
 import { useNavigate } from "react-router-dom";
-
+import JobStats from "../../components/ManagerComponents/JobStats";
+import JobTable from "../../components/ManagerComponents/JobTable";
+import Navbar from "../../components/Navbar";
+import { useAuth } from "../../contexts/AuthContext";
+import { useJobs } from "../../contexts/JobContext";
+  
 const ManagerDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const { jobs, deleteJob } = useJobs(); // ✅ Use context
+  const { user } = useAuth(); // user contains manager_id
+  const { jobs, deleteJob } = useJobs();
   const navigate = useNavigate();
+
+  // Filter jobs by manager_id
+  const managerJobs = jobs.filter(job => job.ManagerId === user?.UserId);
 
   const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this job requirement?")) {
       try {
-        await deleteJob(id); // call context function which hits API
+        await deleteJob(id);
         alert("Job deleted successfully!");
       } catch (err) {
         console.error("Failed to delete job", err);
@@ -22,7 +24,7 @@ const ManagerDashboard: React.FC = () => {
       }
     }
   };
-  
+
   return (
     <>
       <Navbar />
@@ -48,12 +50,12 @@ const ManagerDashboard: React.FC = () => {
         </div>
 
         {/* Stats */}
-        <JobStats jobRequirements={jobs} />
+        <JobStats jobRequirements={managerJobs} />
 
         {/* Table */}
         <JobTable
-          jobRequirements={jobs}
-          onEdit={(job) => navigate(`edit-job/${job.requirement_id}`, { state: job })}
+          jobRequirements={managerJobs}
+          onEdit={(job) => navigate(`edit-job/${job.RequirementId}`, { state: job })}
           onDelete={handleDelete}
         />
       </div>
@@ -61,4 +63,4 @@ const ManagerDashboard: React.FC = () => {
   );
 };
 
-export default ManagerDashboard;
+ export default ManagerDashboard;

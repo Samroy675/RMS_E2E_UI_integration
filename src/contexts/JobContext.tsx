@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { JobRequirement } from "../data";
 import * as reqApi from "../services/api/requirements";
 import api from "../services/axiosInstance";
+import axios from "axios";
 
 interface JobContextType {
   jobs: JobRequirement[];
@@ -17,14 +18,22 @@ export const JobContext = createContext<JobContextType | undefined>(undefined);
 export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [jobs, setJobs] = useState<JobRequirement[]>([]);
 
-  const fetchJobs = async () => {
-    try {
-      const data = await reqApi.getJobRequirements();
-      setJobs(data);
-    } catch (err) {
-      console.error("Failed to fetch jobs", err);
-    }
-  };
+
+const fetchJobs = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await axios.get('/admin/JobRequirements', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+   
+    const jobs = response.data;
+    console.log('Fetched jobs:', jobs);
+  } catch (error) {
+    console.error('Failed to fetch jobs', error);
+  }
+};
 
   const addJob = async (job: Partial<JobRequirement>) => {
     try {
@@ -39,8 +48,8 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateJob = async (job: JobRequirement) => {
     try {
-      const updated = await reqApi.updateJobRequirement(job.requirement_id, job);
-      setJobs(prev => prev.map(j => (j.requirement_id === job.requirement_id ? updated : j)));
+      const updated = await reqApi.updateJobRequirement(job.RequirementId, job);
+      setJobs(prev => prev.map(j => (j.RequirementId === job.RequirementId ? updated : j)));
       return updated;
     } catch (err) {
       console.error("Failed to update job", err);
@@ -51,7 +60,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const deleteJob = async (id: number) => {
     try {
       await reqApi.deleteJobRequirement(id);
-      setJobs(prev => prev.filter(j => j.requirement_id !== id));
+      setJobs(prev => prev.filter(j => j.RequirementId !== id));
     } catch (err) {
       console.error("Failed to delete job", err);
       throw err;

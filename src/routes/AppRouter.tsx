@@ -18,7 +18,7 @@ const AppRouter: React.FC = () => {
   const { isAuthenticated, user } = useAuth();
   const getDashboardRoute = () => {
     if (!user) return '/';
-    switch (user.role) {
+    switch (user.Role) {
       case 'Manager':
         return '/manager';
       case 'HR':

@@ -1,7 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import * as jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import type { User } from "../data";
 import * as usersApi from "../services/api/users";
+
+interface DecodedToken {
+  sub?: string;
+  userId?: number;
+  email?: string;
+  role?: string;
+  firstName?: string;
+  lastName?: string;
+  exp?: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -28,66 +38,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return null;
     }
   });
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!localStorage.getItem("rms_token"));
 
   useEffect(() => {
-    const token = localStorage.getItem("rms_token");
-    if (token && !user) {
-      try {
-        const decoded: any = (jwt_decode as any)(token);
-        const mapped: any = {
-          user_id: decoded.sub || decoded.userId || decoded.UserId,
-          email: decoded.email || decoded.Email,
-          role: decoded.role || decoded.Role,
-          first_name: decoded.first_name || decoded.given_name || "",
-          last_name: decoded.last_name || decoded.family_name || "",
-          session_token: token,
-        };
-        setUser(mapped as User);
-        setIsAuthenticated(true);
-      } catch (err) {
-        console.warn("Invalid token during init", err);
-        localStorage.removeItem("rms_token");
-        localStorage.removeItem("rms_user");
-        setUser(null);
-        setIsAuthenticated(false);
-      }
+  const token = localStorage.getItem("rms_token");
+  if (token && !user) {
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      const mapped: User = {
+        UserId: Number(decoded.userId || decoded.sub),
+        Email: decoded.email || "",
+        Role: decoded.role || "",
+        FirstName: decoded.firstName || "",
+        LastName: decoded.lastName || "",
+        session_token: token,
+      };
+      setUser(mapped);
+      setIsAuthenticated(true);
+    } catch (err) {
+      localStorage.removeItem("rms_token");
+      localStorage.removeItem("rms_user");
+      setUser(null);
+      setIsAuthenticated(false);
     }
-  }, []);
+  }
+}, []);
 
   useEffect(() => {
     if (user) localStorage.setItem("rms_user", JSON.stringify(user));
     else localStorage.removeItem("rms_user");
   }, [user]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await usersApi.loginUser(email, password);
       if (res.token) {
         localStorage.setItem("rms_token", res.token);
-      }
-      if (res.user) {
-        setUser(res.user);
+        const mapped: User = {
+          UserId: res.userId,
+          Email: res.email,
+          Role: res.role,
+          FirstName: "", // optional
+          LastName: "",
+          session_token: res.token,
+        };
+        setUser(mapped);
         setIsAuthenticated(true);
         return true;
-      }
-      if (res.token) {
-        try {
-          const decoded: any = (jwt_decode as any)(res.token);
-          const mapped: any = {
-            user_id: decoded.sub || decoded.userId || decoded.UserId,
-            email: decoded.email || decoded.Email,
-            role: decoded.role || decoded.Role,
-            first_name: decoded.first_name || decoded.given_name || "",
-            last_name: decoded.last_name || decoded.family_name || "",
-            session_token: res.token,
-          };
-          setUser(mapped as User);
-          setIsAuthenticated(true);
-          return true;
-        } catch (e) {
-          return true;
-        }
       }
       return false;
     } catch (err: any) {
@@ -96,17 +94,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (userData: Partial<User>) => {
+  const signup = async (userData: Partial<User>): Promise<boolean> => {
     try {
-      const created = await usersApi.createUser(userData);
-      if ((created as any).token) {
-        localStorage.setItem("rms_token", (created as any).token);
-      } else if ((created as any).session_token) {
-        localStorage.setItem("rms_token", (created as any).session_token);
+      const res = await usersApi.createUser(userData);
+      if (res.token) {
+        localStorage.setItem("rms_token", res.token);
+        const mapped: User = {
+          UserId: res.userId,
+          Email: res.email,
+          Role: res.role,
+          FirstName: userData.FirstName || "",
+          LastName: userData.LastName || "",
+          session_token: res.token,
+        };
+        setUser(mapped);
+        setIsAuthenticated(true);
+        return true;
       }
-      setUser(created as User);
-      setIsAuthenticated(true);
-      return true;
+      return false;
     } catch (err: any) {
       console.error("Signup error", err);
       return false;
@@ -120,5 +125,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("rms_user");
   };
 
-  return <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, signup, logout, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };

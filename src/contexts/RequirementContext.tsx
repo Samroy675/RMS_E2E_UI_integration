@@ -1,11 +1,15 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { JobRequirement } from "../data";
-import { getJobRequirements, addJobRequirement, updateJobRequirement, deleteJobRequirement } from "../services/api/requirements";
+import {
+  getJobRequirements,
+  addJobRequirement,
+  updateJobRequirement,
+  deleteJobRequirement,
+} from "../services/api/requirements";
 
 interface JobContextType {
   jobs: JobRequirement[];
-
   approveJob: (id: number) => Promise<void>;
   addJob: (job: Partial<JobRequirement>) => Promise<JobRequirement | null>;
   updateJob: (job: JobRequirement) => Promise<JobRequirement | null>;
@@ -14,34 +18,43 @@ interface JobContextType {
 
 export const JobContext = createContext<JobContextType | undefined>(undefined);
 
-export const JobProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const JobProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [jobs, setJobs] = useState<JobRequirement[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getJobRequirements();
-        setJobs(data);
-      } catch (err) {
-        console.error("Failed to load job requirements", err);
-      }
-    })();
-  }, []);
+ useEffect(() => {
+  (async () => {
+    try {
+      const allJobs = await getJobRequirements();
+      const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+
+      const managerJobs = allJobs.filter(
+        (job) => job.ManagerId === currentUser.user_id
+      );
+
+      setJobs(managerJobs);
+    } catch (err) {
+      console.error("Failed to load job requirements", err);
+    }
+  })();
+}, []);
 
   const approveJob = async (id: number) => {
     try {
       const job = jobs.find(
-        (j) => j.requirement_id === id || (j as any).job_requirement_id === id
+        (j) => j.RequirementId === id || (j as any).job_requirement_id === id
       );
       if (!job) return;
-      const updated = await updateJobRequirement(
-        (job as any).id ?? (job as any).job_requirement_id,
-        { ...job, status: "Active" } as any
-      );
+
+      const updated = await updateJobRequirement(id, {
+        ...job,
+        Status: "Approved",
+      });
       setJobs((prev) =>
-        prev.map((j) => ((j as any).id === (updated as any).id ? updated : j))
+        prev.map((j) =>
+          ((j as any).id ?? (j as any).job_requirement_id) === (updated as any).id
+            ? updated
+            : j
+        )
       );
     } catch (err) {
       console.error("approveJob error", err);
@@ -61,28 +74,16 @@ export const JobProvider: React.FC<{ children: ReactNode }> = ({
 
   const updateJob = async (job: JobRequirement) => {
     try {
-      const res = await fetch(
-        `http://localhost:5000/jobs/${job.requirement_id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(job),
-        }
-      );
-      if (!res.ok) throw new Error("Failed to update job");
-      const updated = await res.json();
-
-      // Update context state
+      const updated = await updateJobRequirement(job.RequirementId, job);
       setJobs((prev) =>
         prev.map((j) =>
-          j.requirement_id === updated.requirement_id ? updated : j
+          j.RequirementId === updated.RequirementId ? updated : j
         )
       );
       return updated;
     } catch (err) {
-      console.error(err);
+      console.error("updateJob error", err);
+      return null;
     }
   };
 

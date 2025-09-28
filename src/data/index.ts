@@ -1,41 +1,41 @@
 export interface User {
-    user_id: number;
-    email: string;
-    password?: string;
-    first_name?: string;
-    last_name?: string;
-    phone?: string;
-    role: 'Manager' | 'HR' | 'Interviewer' | 'Candidate';
+    UserId: number;
+    Email: string;
+    Password?: string;
+    FirstName?: string;
+    LastName?: string;
+    Phone?: string;
+    Role: string;
     session_token?: string;
     last_login?: string;
-    created_at?: string;
-    updated_at?: string;
-    is_active?: boolean;
+    CreatedAt?: string;
+    UpdatedAt?: string;
+    IsActive?: boolean;
   }
   
   export interface JobRequirement {
-    requirement_id: number;
-    manager_id: number;
-    job_title: string;
-    job_description: string;
-    years_experience: number;
-    required_skills: string;
-    number_of_openings: number;
-    number_of_rounds: number;
-    status: 'Pending' | 'Approved' | 'Rejected';
-    created_at: string;
-    updated_at: string;
+    RequirementId: number;
+    ManagerId: number;
+    JobTitle: string;
+    JobDescription: string;
+    YearsExperience: number;
+    RequiredSkills: string;
+    NumberOfOpenings: number;
+    NumberOfRounds: number;
+    Status: 'Pending' | 'Approved' | 'Rejected';
+    CreatedAt: string;
+    UpdatedAt: string;
   }
   
   export interface Job {
-    id: number;
-    title: string;
-    description: string;
-    experience: number;
-    requiredSkills: string[]
-    openings: number;
-    interviewRounds: number;
-    status: 'Active' | 'Inactive' | 'Closed' | 'Approved';
+    JobId: number;
+    JobTitle: string;
+    JobDescription: string;
+    YearsExperience: number;
+    RequiredSkills: string[]
+    NumberOfOpenings: number;
+    NumberOfRounds: number;
+    Status: 'Active' | 'Inactive' | 'Closed' | 'Approved';
   }
   
   export interface Application {

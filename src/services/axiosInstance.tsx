@@ -1,8 +1,8 @@
 import axios from "axios";
 
-let API_BASE = import.meta.env.VITE_API_URL;
+let API_BASE = "http://localhost:5109";
 if (!API_BASE) {
-  throw new Error("VITE_API_URL is not defined in your .env file. Example: VITE_API_URL=http://localhost:5000");
+  throw new Error("API_URL=http://localhost:5109 not found.");
 }
 // remove trailing slashes
 API_BASE = API_BASE.replace(/\/+$|\s+/g, "");
