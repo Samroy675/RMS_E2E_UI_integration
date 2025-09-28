@@ -1,76 +1,81 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import type { ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import type { JobRequirement } from "../data";
-import { getJobRequirements, addJobRequirement, updateJobRequirement, deleteJobRequirement } from "../services/api/requirements";
+import * as reqApi from "../services/api/requirements";
+import api from "../services/axiosInstance";
 
 interface JobContextType {
-  jobs: JobRequirement[];   
-  approveJob: (id: number) => Promise<void>;
+  jobs: JobRequirement[];
+  fetchJobs: () => Promise<void>;
   addJob: (job: Partial<JobRequirement>) => Promise<JobRequirement | null>;
   updateJob: (job: JobRequirement) => Promise<JobRequirement | null>;
   deleteJob: (id: number) => Promise<void>;
+  approveJob: (id: number) => Promise<void>;
 }
 
 export const JobContext = createContext<JobContextType | undefined>(undefined);
 
-export const JobProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [jobs, setJobs] = useState<JobRequirement[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await getJobRequirements();
-        setJobs(data);
-      } catch (err) {
-        console.error("Failed to load job requirements", err);
-      }
-    })();
-  }, []);
-
-  const approveJob = async (id: number) => {
+  const fetchJobs = async () => {
     try {
-      const job = jobs.find(j => j.requirement_id === id || (j as any).job_requirement_id === id);
-      if (!job) return;
-      const updated = await updateJobRequirement((job as any).id ?? (job as any).job_requirement_id, { ...job, status: "Active" } as any);
-      setJobs(prev => prev.map(j => ((j as any).id === (updated as any).id ? updated : j)));
+      const data = await reqApi.getJobRequirements();
+      setJobs(data);
     } catch (err) {
-      console.error("approveJob error", err);
+      console.error("Failed to fetch jobs", err);
     }
   };
 
   const addJob = async (job: Partial<JobRequirement>) => {
     try {
-      const created = await addJobRequirement(job);
-      setJobs(prev => [...prev, created]);
-      return created;
+      const newJob = await reqApi.addJobRequirement(job);
+      setJobs(prev => [...prev, newJob]);
+      return newJob;
     } catch (err) {
-      console.error("addJob error", err);
+      console.error("Failed to add job", err);
       return null;
     }
   };
 
   const updateJob = async (job: JobRequirement) => {
     try {
-      const updated = await updateJobRequirement((job as any).id ?? (job as any).job_requirement_id, job as any);
-      setJobs(prev => prev.map(j => ((j as any).id === (updated as any).id ? updated : j)));
+      const updated = await reqApi.updateJobRequirement(job.requirement_id, job);
+      setJobs(prev => prev.map(j => (j.requirement_id === job.requirement_id ? updated : j)));
       return updated;
     } catch (err) {
-      console.error("updateJob error", err);
+      console.error("Failed to update job", err);
       return null;
     }
   };
 
   const deleteJob = async (id: number) => {
     try {
-      await deleteJobRequirement(id);
-      setJobs(prev => prev.filter(j => ((j as any).id ?? (j as any).job_requirement_id) !== id));
+      await reqApi.deleteJobRequirement(id);
+      setJobs(prev => prev.filter(j => j.requirement_id !== id));
     } catch (err) {
-      console.error("deleteJob error", err);
+      console.error("Failed to delete job", err);
+      throw err;
     }
   };
 
+  const approveJob = async (id: number) => {
+    try {
+      // backend expects: PUT api/admin/JobRequirements/{id}/status?status=Approved
+      await api.put(`/admin/JobRequirements/${id}/status`, null, { params: { status: "Approved" } });
+      // refresh list
+      await fetchJobs();
+    } catch (err) {
+      console.error("Failed to approve job", err);
+      throw err;
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
   return (
-    <JobContext.Provider value={{ jobs, approveJob, addJob, updateJob, deleteJob }}>
+    <JobContext.Provider value={{ jobs, fetchJobs, addJob, updateJob, deleteJob, approveJob }}>
       {children}
     </JobContext.Provider>
   );
@@ -78,8 +83,6 @@ export const JobProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const useJobs = () => {
   const context = useContext(JobContext);
-  if (!context) {
-    throw new Error("useJobs must be used within a JobProvider");
-  }
+  if (!context) throw new Error("useJobs must be used within a JobProvider");
   return context;
 };

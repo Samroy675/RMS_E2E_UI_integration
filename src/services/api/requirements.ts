@@ -1,21 +1,28 @@
-import axios from "../axiosInstance";
+import api from "../axiosInstance";
 import type { JobRequirement } from "../../data";
 
+const BASE = '/admin/JobRequirements';
+
 export const getJobRequirements = async (): Promise<JobRequirement[]> => {
-  const res = await axios.get("/jobRequirements");
+  const res = await api.get(`${BASE}`);
+  return res.data;
+};
+
+export const getJobRequirement = async (id: number): Promise<JobRequirement> => {
+  const res = await api.get(`${BASE}/${id}`);
   return res.data;
 };
 
 export const addJobRequirement = async (job: Partial<JobRequirement>): Promise<JobRequirement> => {
-  const res = await axios.post("/jobRequirements", job);
+  const res = await api.post(`${BASE}`, job);
   return res.data;
 };
 
 export const updateJobRequirement = async (id: number, job: Partial<JobRequirement>): Promise<JobRequirement> => {
-  const res = await axios.put(`/jobRequirements/${id}`, job);
+  const res = await api.put(`${BASE}/${id}`, job);
   return res.data;
 };
 
 export const deleteJobRequirement = async (id: number): Promise<void> => {
-  await axios.delete(`/jobRequirements/${id}`);
+  await api.delete(`${BASE}/${id}`);
 };

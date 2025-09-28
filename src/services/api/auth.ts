@@ -1,8 +1,6 @@
-import axios from "axios";
+import api from "../axiosInstance";
 
-// auth.ts
 export const loginUser = async (email: string, password: string) => {
-    const res = await axios.post("/auth/login", { email, password }); // calls your AuthController
-    return res.data; // { token, user }
-  };
-  
+  const res = await api.post('/auth/login', { email, password });
+  return res.data;
+};
